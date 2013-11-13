@@ -16,29 +16,20 @@
 
 package fr.rayquiz.findmyface;
 
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
-
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.LoggerFactory;
+
 public class GuestbookServlet extends HttpServlet {
-  @Override
-  public void doGet(HttpServletRequest req, HttpServletResponse resp)
-      throws IOException {
+    @Override
+    public void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
 
-    UserService userService = UserServiceFactory.getUserService();
-    User currentUser = userService.getCurrentUser();
-
-    if (currentUser != null) {
-      resp.setContentType("text/plain");
-      resp.getWriter().println("Hello, " + currentUser.getNickname());
-    } else {
-      resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
+        Logger.getLogger("test");
+        org.slf4j.Logger log = LoggerFactory.getLogger("fr.rayquiz.findmyface.test");
     }
-  }
 }

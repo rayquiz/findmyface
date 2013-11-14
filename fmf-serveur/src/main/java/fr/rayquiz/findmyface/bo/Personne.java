@@ -1,5 +1,7 @@
 package fr.rayquiz.findmyface.bo;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,7 +12,10 @@ import com.google.common.collect.Lists;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.Unindex;
+
+import fr.rayquiz.findmyface.utils.Phonetic;
 
 @Entity
 @Cache
@@ -22,6 +27,11 @@ public class Personne {
     private Genre genre;
     private String nom;
     private String prenom;
+
+    @Index
+    private String nomPhonetic;
+    @Index
+    private String prenomPhonetic;
     private int anneeNaissance;
     private int anneeDeces;
 
@@ -46,7 +56,8 @@ public class Personne {
         if (getClass() != obj.getClass()) return false;
         Personne o = (Personne) obj;
         return new EqualsBuilder().append(id, o.id).append(genre, o.genre).append(nom, o.nom).append(prenom, o.prenom)
-                .append(anneeDeces, o.anneeDeces).append(anneeNaissance, o.anneeNaissance).isEquals();
+                .append(anneeDeces, o.anneeDeces).append(anneeNaissance, o.anneeNaissance)
+                .append(indiceListe, o.indiceListe).isEquals();
     }
 
     public Long getId() {
@@ -66,6 +77,7 @@ public class Personne {
     }
 
     public void setNom(final String nom) {
+        this.nomPhonetic = Phonetic.genererPhonetic(checkNotNull(nom));
         this.nom = nom;
     }
 
@@ -74,7 +86,16 @@ public class Personne {
     }
 
     public void setPrenom(final String prenom) {
+        this.prenomPhonetic = Phonetic.genererPhonetic(checkNotNull(prenom));
         this.prenom = prenom;
+    }
+
+    public String getNomPhonetic() {
+        return nomPhonetic;
+    }
+
+    public String getPrenomPhonetic() {
+        return prenomPhonetic;
     }
 
     public int getAnneeNaissance() {
@@ -94,7 +115,7 @@ public class Personne {
     }
 
     public List<Indice> getIndiceListe() {
-        if (indiceListe == null) indiceListe = Lists.newArrayList();
+        if (indiceListe == null) indiceListe = Lists.newArrayListWithCapacity(2);
         return indiceListe;
     }
 

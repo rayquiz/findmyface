@@ -4,6 +4,12 @@ import com.googlecode.objectify.NotFoundException;
 
 import fr.rayquiz.findmyface.bo.Personne;
 
+/**
+ * Interface du service de requêtage des objets {@link Personne}
+ * 
+ * @author PJ
+ * 
+ */
 public interface IPersonneDao {
 
     long saveImmediate(Personne personne);

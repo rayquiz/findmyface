@@ -18,32 +18,47 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.LoadType;
 import com.googlecode.objectify.cmd.Query;
 
+import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.bo.Personne;
+import fr.rayquiz.findmyface.dao.IIdGeneratorService;
 import fr.rayquiz.findmyface.dao.IPersonneDao;
 import fr.rayquiz.findmyface.utils.ObjectifyUtil;
 import fr.rayquiz.findmyface.utils.Phonetic;
 
 public class PersonneDao implements IPersonneDao {
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private IIdGeneratorService idGeneratorService;
+
     static {
         ObjectifyService.register(Personne.class);
+    }
+
+    public void setIdGeneratorService(final IIdGeneratorService idGeneratorService) {
+        this.idGeneratorService = idGeneratorService;
     }
 
     @Override
     public void saveAsynchronously(final Personne personne) {
         checkNotNull(personne, "Impossible de sauver une personne null");
+        checkNotNull(personne.getDifficulte(), "Impossible d'avoir une difficulte non renseignée");
+
+        personne.setId(idGeneratorService.generateNewId(personne.getDifficulte()));
+
         ofy().save().entity(personne);
     }
 
     @Override
     public long saveImmediate(final Personne personne) {
         checkNotNull(personne, "Impossible de sauver une personne null");
+        checkNotNull(personne.getDifficulte(), "Impossible d'avoir une difficulte non renseignée");
+
         personne.buildPhonetic();
-        if (personne.getId() != null) {
-            log.warn("Tentative d'enregistrement d'une nouvelle personne avec Id déja renseigné (id={}), mise à null",
+        if (personne.getId() != 0) {
+            log.warn("Tentative d'enregistrement d'une nouvelle personne avec Id déja renseigné (id={}), ecrasement",
                     personne.getId());
-            personne.setId(null);
         }
+        personne.setId(idGeneratorService.generateNewId(personne.getDifficulte()));
+
         return ofy().save().entity(personne).now().getId();
     }
 
@@ -71,5 +86,11 @@ public class PersonneDao implements IPersonneDao {
         log.debug("Retour de {} elements", retour.size());
 
         return retour;
+    }
+
+    @Override
+    public Personne getRandomByDifficulte(final Difficulte difficulte) {
+        ofy().load().type(Personne.class);
+        return null;
     }
 }

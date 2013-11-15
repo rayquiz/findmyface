@@ -22,7 +22,7 @@ import fr.rayquiz.findmyface.utils.Phonetic;
 @Unindex
 public class Personne {
     @Id
-    private Long id;
+    private long id;
 
     private Genre genre;
     private String nom;
@@ -69,11 +69,11 @@ public class Personne {
         if (prenom != null) this.prenomPhonetic = Phonetic.genererPhonetic(prenom);
     }
 
-    public void setId(final Long id) {
+    public void setId(final long id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

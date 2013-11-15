@@ -10,7 +10,13 @@ import fr.rayquiz.findmyface.tests.GaeDefaultTestClass;
 
 public class IdGeneratorServiceTest extends GaeDefaultTestClass {
 
-    private final IIdGeneratorService service = new IdGeneratorService();
+    private IIdGeneratorService service;
+
+    @Override
+    public void setUp() {
+        super.setUp();
+        service = new IdGeneratorService();
+    }
 
     @Test
     public void should_increment_and_get() {

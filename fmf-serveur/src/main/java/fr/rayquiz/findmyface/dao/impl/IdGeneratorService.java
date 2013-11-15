@@ -1,13 +1,17 @@
 package fr.rayquiz.findmyface.dao.impl;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 import java.util.Map;
 
 import com.google.common.collect.Maps;
+import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.VoidWork;
 
 import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.dao.IIdGeneratorService;
+import fr.rayquiz.findmyface.dao.bo.RandomBo;
 import fr.rayquiz.findmyface.utils.ShardedCounter;
 
 public class IdGeneratorService implements IIdGeneratorService {
@@ -19,6 +23,8 @@ public class IdGeneratorService implements IIdGeneratorService {
             Difficulte element = Difficulte.values()[i];
             shardedMap.put(element, new ShardedCounter(PREFIX + element.name()));
         }
+
+        ObjectifyService.register(RandomBo.class);
     }
 
     @Override
@@ -36,7 +42,29 @@ public class IdGeneratorService implements IIdGeneratorService {
             newId = compteur.getCount();
         }
 
-        return Long.valueOf(difficulte.getImportance() + String.valueOf(newId));
+        long finalId = Long.valueOf(difficulte.getImportance() + String.valueOf(newId));
+        addIdToRandomBo(difficulte, finalId);
+
+        return finalId;
     }
 
+    private void addIdToRandomBo(final Difficulte difficulte, final long id) {
+        ofy().transactNew(new VoidWork() {
+
+            @Override
+            public void vrun() {
+
+                // RandomBo randomBo = ofy().load().type(RandomBo.class).id(difficulte.name()).now();
+
+                RandomBo randomBo = ofy().load().entity(new RandomBo(difficulte)).now();
+
+                if (randomBo == null) {
+                    randomBo = new RandomBo();
+                    randomBo.setDifficulte(difficulte);
+                }
+                randomBo.getIdListe().add(id);
+                ofy().save().entity(randomBo).now();
+            }
+        });
+    }
 }

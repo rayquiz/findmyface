@@ -2,6 +2,10 @@ package fr.rayquiz.findmyface.dao.impl;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +13,7 @@ import org.junit.Test;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.common.collect.Lists;
 import com.googlecode.objectify.ObjectifyService;
 
 import fr.rayquiz.findmyface.bo.Indice;
@@ -114,4 +119,86 @@ public class PersonneDaoTest {
         assertThat(retour).isEqualTo(p);
         assertThat(p.getIndiceListe()).isSameAs(retour.getIndiceListe());
     }
+
+    @Test
+    public void should_find_personne_by_nom() {
+        // Arrange
+        List<Personne> liste = generatePersonnes(10);
+        liste.get(5).withNom("Einstein").withPrenom("Albert");
+        liste.get(8).withNom("EinsteinBerger").withPrenom("Jean-Rene");
+
+        // Act
+        saveAll(liste);
+        Set<Personne> retour = service.getByNomOuPrenomPhonetic("Einst");
+
+        // Assert
+        assertThat(retour).containsOnly(liste.get(5), liste.get(8));
+    }
+
+    @Test
+    public void should_find_personne_by_prenom() {
+        // Arrange
+        List<Personne> liste = generatePersonnes(10);
+        liste.get(5).withNom("Einstein").withPrenom("Albert");
+        liste.get(8).withNom("EinsteinBerger").withPrenom("Jean-Rene");
+        liste.get(1).withNom("Michel").withPrenom("Jean-Pierre");
+
+        // Act
+        saveAll(liste);
+        Set<Personne> retour = service.getByNomOuPrenomPhonetic("jean");
+
+        // Assert
+        assertThat(retour).containsOnly(liste.get(8), liste.get(1));
+    }
+
+    @Test
+    public void should_find_personne_whith_same_prenom_and_nom_without_double() {
+        // Arrange
+        List<Personne> liste = generatePersonnes(10);
+        liste.get(5).withNom("Einstein").withPrenom("Albert");
+        liste.get(8).withNom("EinsteinBerger").withPrenom("Jean-Rene");
+        liste.get(2).withNom("Michel").withPrenom("Michel");
+
+        // Act
+        saveAll(liste);
+        Set<Personne> retour = service.getByNomOuPrenomPhonetic("michel");
+
+        // Assert
+        assertThat(retour).hasSize(1).containsOnly(liste.get(2));
+    }
+
+    @Test
+    public void should_find_personne_by_prenom_and_nom() {
+        // Arrange
+        List<Personne> liste = generatePersonnes(20);
+        liste.get(5).withNom("Einstein").withPrenom("Albert");
+        liste.get(8).withNom("Miste").withPrenom("Pierre-Mathieu");
+        liste.get(2).withNom("Chedid").withPrenom("Mathieu");
+        liste.get(7).withNom("Mathieu").withPrenom("Mireille");
+
+        // Act
+        saveAll(liste);
+        Set<Personne> retour = service.getByNomOuPrenomPhonetic("matthieu");
+
+        // Assert
+        assertThat(retour).hasSize(2).containsOnly(liste.get(2), liste.get(7));
+    }
+
+    private void saveAll(final List<Personne> liste) {
+        for (Personne personne : liste) {
+            service.saveImmediate(personne);
+        }
+    }
+
+    private List<Personne> generatePersonnes(final int nombre) {
+        List<Personne> liste = Lists.newArrayList();
+        for (int i = 0; i < nombre; i++) {
+            Personne p = new Personne();
+            p.setNom("Random" + i + RandomStringUtils.randomAlphabetic(20));
+            p.setPrenom("Random" + i + RandomStringUtils.randomAlphabetic(20));
+            liste.add(p);
+        }
+        return liste;
+    }
+
 }

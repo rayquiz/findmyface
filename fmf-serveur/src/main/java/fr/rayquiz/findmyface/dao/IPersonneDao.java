@@ -1,5 +1,7 @@
 package fr.rayquiz.findmyface.dao;
 
+import java.util.Set;
+
 import com.googlecode.objectify.NotFoundException;
 
 import fr.rayquiz.findmyface.bo.Personne;
@@ -17,5 +19,7 @@ public interface IPersonneDao {
     void saveAsynchronously(Personne personne);
 
     Personne getById(final long id) throws NotFoundException;
+
+    Set<Personne> getByNomOuPrenomPhonetic(String nomPrenom);
 
 }

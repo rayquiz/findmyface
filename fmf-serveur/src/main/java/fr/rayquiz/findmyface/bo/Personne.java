@@ -35,18 +35,21 @@ public class Personne {
     private int anneeNaissance;
     private int anneeDeces;
 
+    private Difficulte difficulte;
+    private boolean valide = false;
+
     private List<Indice> indiceListe;
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("id", id).add("genre", genre).add("nom", nom).add("prenom", prenom)
-                .add("anneeNaissance", anneeNaissance).add("anneeDeces", anneeDeces)
-                .add("indiceListe", StringUtils.join(getIndiceListe(), ",")).toString();
+                .add("anneeNaissance", anneeNaissance).add("anneeDeces", anneeDeces).add("difficulte", difficulte)
+                .add("valide", valide).add("indiceListe", StringUtils.join(getIndiceListe(), ",")).toString();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, genre, nom, prenom, anneeNaissance, anneeDeces);
+        return Objects.hashCode(id, genre, nom, prenom, anneeNaissance, anneeDeces, difficulte, valide);
     }
 
     @Override
@@ -57,7 +60,17 @@ public class Personne {
         Personne o = (Personne) obj;
         return new EqualsBuilder().append(id, o.id).append(genre, o.genre).append(nom, o.nom).append(prenom, o.prenom)
                 .append(anneeDeces, o.anneeDeces).append(anneeNaissance, o.anneeNaissance)
-                .append(indiceListe, o.indiceListe).isEquals();
+                .append(difficulte, o.difficulte).append(valide, o.valide).append(indiceListe, o.indiceListe)
+                .isEquals();
+    }
+
+    public void buildPhonetic() {
+        if (nom != null) this.nomPhonetic = Phonetic.genererPhonetic(nom);
+        if (prenom != null) this.prenomPhonetic = Phonetic.genererPhonetic(prenom);
+    }
+
+    public void setId(final Long id) {
+        this.id = id;
     }
 
     public Long getId() {
@@ -81,6 +94,11 @@ public class Personne {
         this.nom = nom;
     }
 
+    public Personne withNom(final String nom) {
+        setNom(nom);
+        return this;
+    }
+
     public String getPrenom() {
         return prenom;
     }
@@ -88,6 +106,11 @@ public class Personne {
     public void setPrenom(final String prenom) {
         this.prenomPhonetic = Phonetic.genererPhonetic(checkNotNull(prenom));
         this.prenom = prenom;
+    }
+
+    public Personne withPrenom(final String prenom) {
+        setPrenom(prenom);
+        return this;
     }
 
     public String getNomPhonetic() {
@@ -112,6 +135,22 @@ public class Personne {
 
     public void setAnneeDeces(final int anneeDeces) {
         this.anneeDeces = anneeDeces;
+    }
+
+    public Difficulte getDifficulte() {
+        return difficulte;
+    }
+
+    public void setDifficulte(final Difficulte difficulte) {
+        this.difficulte = difficulte;
+    }
+
+    public boolean isValide() {
+        return valide;
+    }
+
+    public void setValide(final boolean valide) {
+        this.valide = valide;
     }
 
     public List<Indice> getIndiceListe() {

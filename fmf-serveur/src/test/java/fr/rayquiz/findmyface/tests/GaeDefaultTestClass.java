@@ -1,5 +1,7 @@
 package fr.rayquiz.findmyface.tests;
 
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
 import org.junit.After;
 import org.junit.Before;
 
@@ -15,6 +17,7 @@ public abstract class GaeDefaultTestClass {
     @Before
     public void setUp() {
         helper.setUp();
+        ofy().clear();
     }
 
     @After

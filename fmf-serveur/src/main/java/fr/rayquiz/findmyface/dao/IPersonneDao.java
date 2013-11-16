@@ -25,6 +25,6 @@ public interface IPersonneDao {
 
     Set<Personne> getByNomOuPrenomPhonetic(String nomPrenom);
 
-    Personne getRandomByDifficulte(@Nullable Difficulte difficulte);
+    Personne getRandomByDifficulte(@Nullable Difficulte difficulte) throws NotFoundException;
 
 }

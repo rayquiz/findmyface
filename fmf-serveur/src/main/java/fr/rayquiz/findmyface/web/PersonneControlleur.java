@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.googlecode.objectify.NotFoundException;
 
+import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.bo.Personne;
 import fr.rayquiz.findmyface.dao.IPersonneDao;
 
@@ -51,6 +52,21 @@ public class PersonneControlleur {
     public long save(@RequestBody final Personne personne) throws Exception {
         checkNotNull(personne, "Objet fourni null !");
         return personneDao.saveImmediate(personne);
+    }
+
+    @RequestMapping(
+            value = "/random/{difficulte}",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Personne getRandomWithDiffculte(@PathVariable final Difficulte difficulte) {
+        return personneDao.getRandomByDifficulte(difficulte);
+    }
+
+    @RequestMapping(value = "/random", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Personne getRandomNoContrainte() {
+        return getRandomWithDiffculte(null);
     }
 
     public void setPersonneDao(final IPersonneDao personneDao) {

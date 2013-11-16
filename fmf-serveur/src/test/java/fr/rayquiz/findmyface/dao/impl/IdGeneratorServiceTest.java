@@ -24,7 +24,7 @@ public class IdGeneratorServiceTest extends GaeDefaultTestClass {
 
         // Act
         for (long i = 1; i < 10; i++) {
-            long newId = service.generateNewId(Difficulte.SIMPLE);
+            long newId = service.generateNewEntityId(Difficulte.SIMPLE);
             long value = service.getCount(Difficulte.SIMPLE);
 
             // Assert
@@ -34,7 +34,7 @@ public class IdGeneratorServiceTest extends GaeDefaultTestClass {
 
         // Act
         for (long i = 10; i < 20; i++) {
-            long newId = service.generateNewId(Difficulte.SIMPLE);
+            long newId = service.generateNewEntityId(Difficulte.SIMPLE);
             long value = service.getCount(Difficulte.SIMPLE);
 
             // Assert
@@ -48,13 +48,13 @@ public class IdGeneratorServiceTest extends GaeDefaultTestClass {
         // Arrange
 
         // Act
-        long moyFirst = service.generateNewId(Difficulte.MOYEN);
+        long moyFirst = service.generateNewEntityId(Difficulte.MOYEN);
         long difFirst = service.getCount(Difficulte.DIFFICILE);
 
-        long moySecond = service.generateNewId(Difficulte.MOYEN);
+        long moySecond = service.generateNewEntityId(Difficulte.MOYEN);
         long difSecond = service.getCount(Difficulte.DIFFICILE);
 
-        service.generateNewId(Difficulte.DIFFICILE);
+        service.generateNewEntityId(Difficulte.DIFFICILE);
         long difThird = service.getCount(Difficulte.DIFFICILE);
 
         // Assert

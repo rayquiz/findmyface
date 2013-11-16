@@ -6,6 +6,8 @@ public interface IIdGeneratorService {
 
     long getCount(Difficulte difficulte);
 
-    long generateNewId(Difficulte difficulte);
+    long generateNewEntityId(Difficulte difficulte);
+
+    long buildEntityIdFromInfos(Difficulte difficulte, long id);
 
 }

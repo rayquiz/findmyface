@@ -1,7 +1,5 @@
 package fr.rayquiz.findmyface.web;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -19,9 +17,10 @@ import com.googlecode.objectify.NotFoundException;
 import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.bo.Personne;
 import fr.rayquiz.findmyface.dao.IPersonneDao;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Controller
-@RequestMapping("/personne")
+@RequestMapping(RoutageConstantes.PERSONNE)
 public class PersonneControlleur {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -59,14 +58,14 @@ public class PersonneControlleur {
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Personne getRandomWithDiffculte(@PathVariable final Difficulte difficulte) {
+    public Personne getRandomWithDifficulte(@PathVariable final Difficulte difficulte) {
         return personneDao.getRandomByDifficulte(difficulte);
     }
 
     @RequestMapping(value = "/random", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Personne getRandomNoContrainte() {
-        return getRandomWithDiffculte(null);
+        return getRandomWithDifficulte(null);
     }
 
     public void setPersonneDao(final IPersonneDao personneDao) {

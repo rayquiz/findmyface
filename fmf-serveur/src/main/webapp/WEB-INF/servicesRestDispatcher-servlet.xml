@@ -18,6 +18,7 @@
 	<!-- Mapping: /personne -->
 	<bean class="fr.rayquiz.findmyface.web.PersonneControlleur">
 		<property name="personneDao" ref="personneDao" />
+		<property name="joueurInfosDao" ref="joueurInfosDao" />
 	</bean>
 
 </beans>

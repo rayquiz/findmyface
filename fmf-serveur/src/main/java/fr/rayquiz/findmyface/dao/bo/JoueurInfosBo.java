@@ -1,18 +1,24 @@
 package fr.rayquiz.findmyface.dao.bo;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.common.base.Joiner;
 import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Parent;
+import com.googlecode.objectify.annotation.Serialize;
+
+import fr.rayquiz.findmyface.bo.Difficulte;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Entity
 @Cache
@@ -23,7 +29,8 @@ public class JoueurInfosBo {
     @Id
     private String id;
 
-    private List<String> idTrouveListe;
+    @Serialize
+    private Map<Difficulte, Set<Long>> difficulteMap;
 
     public JoueurInfosBo(String id) {
         this();
@@ -39,9 +46,21 @@ public class JoueurInfosBo {
         return parent;
     }
 
-    public List<String> getIdTrouveListe() {
-        if (idTrouveListe == null) idTrouveListe = Lists.newLinkedList();
-        return idTrouveListe;
+    public Map<Difficulte, Set<Long>> getDifficulteMap() {
+        if (difficulteMap == null) {
+            difficulteMap = Maps.newEnumMap(Difficulte.class);
+        }
+        return difficulteMap;
+    }
+
+    public Set<Long> getIdTrouveListeByDifficulte(Difficulte difficulte) {
+        checkNotNull(difficulte);
+        Set<Long> liste = getDifficulteMap().get(difficulte);
+        if (liste == null) {
+            liste = Sets.newHashSet();
+            getDifficulteMap().put(difficulte, liste);
+        }
+        return liste;
     }
 
     public String getId() {
@@ -51,12 +70,12 @@ public class JoueurInfosBo {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("id", id)
-                .add("idTrouveListe", StringUtils.join(getIdTrouveListe(), ",")).toString();
+                .add("difficulteMap", Joiner.on(";").withKeyValueSeparator(":").join(getDifficulteMap())).toString();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, idTrouveListe);
+        return Objects.hashCode(id, difficulteMap);
     }
 
     @Override
@@ -65,7 +84,7 @@ public class JoueurInfosBo {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         JoueurInfosBo o = (JoueurInfosBo) obj;
-        return new EqualsBuilder().append(id, o.id).append(parent, o.parent).append(idTrouveListe, o.idTrouveListe)
+        return new EqualsBuilder().append(id, o.id).append(parent, o.parent).append(difficulteMap, o.difficulteMap)
                 .isEquals();
     }
 }

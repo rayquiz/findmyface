@@ -7,6 +7,6 @@ public interface IJoueurInfosDao {
 
     JoueurInfosBo getCurrentJoueurInfos() throws NotLoggedInException;
 
-    void save(JoueurInfosBo joueur);
+    void saveAsynchrone(JoueurInfosBo joueur);
 
 }

@@ -16,7 +16,9 @@ import com.googlecode.objectify.NotFoundException;
 
 import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.bo.Personne;
+import fr.rayquiz.findmyface.dao.IJoueurInfosDao;
 import fr.rayquiz.findmyface.dao.IPersonneDao;
+import fr.rayquiz.findmyface.dao.bo.JoueurInfosBo;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Controller
@@ -25,6 +27,7 @@ public class PersonneControlleur {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private IPersonneDao personneDao;
+    private IJoueurInfosDao joueurInfosDao;
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -59,7 +62,17 @@ public class PersonneControlleur {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Personne getRandomWithDifficulte(@PathVariable final Difficulte difficulte) {
-        return personneDao.getRandomByDifficulte(difficulte);
+        JoueurInfosBo joueur = joueurInfosDao.getCurrentJoueurInfos();
+        checkNotNull(joueur, "Les informations du joueur sont obligatoires");
+
+        Personne personne = personneDao.getRandomByDifficulte(difficulte, joueur);
+        checkNotNull(personne, "La personne est obligatoire");
+
+        log.debug("Ajout de la personne {} à la liste du joueur {}", personne.getId(), joueur.getId());
+        joueur.getIdTrouveListeByDifficulte(personne.getDifficulte()).add(personne.getId());
+        joueurInfosDao.saveAsynchrone(joueur);
+
+        return personne;
     }
 
     @RequestMapping(value = "/random", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -70,5 +83,9 @@ public class PersonneControlleur {
 
     public void setPersonneDao(final IPersonneDao personneDao) {
         this.personneDao = personneDao;
+    }
+
+    public void setJoueurInfosDao(IJoueurInfosDao joueurInfosDao) {
+        this.joueurInfosDao = joueurInfosDao;
     }
 }

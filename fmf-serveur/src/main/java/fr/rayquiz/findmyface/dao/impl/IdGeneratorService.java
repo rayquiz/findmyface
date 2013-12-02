@@ -1,16 +1,19 @@
 package fr.rayquiz.findmyface.dao.impl;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
 import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.dao.IIdGeneratorService;
 import fr.rayquiz.findmyface.utils.ShardedCounter;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class IdGeneratorService implements IIdGeneratorService {
+    private Logger log = LoggerFactory.getLogger(getClass());
     private static final String PREFIX = "IdGenerator_";
 
     private static final Map<Difficulte, ShardedCounter> shardedMap = Maps.newEnumMap(Difficulte.class);
@@ -36,7 +39,9 @@ public class IdGeneratorService implements IIdGeneratorService {
             newId = compteur.getCount();
         }
 
-        return buildEntityIdFromInfos(difficulte, newId);
+        long retour = buildEntityIdFromInfos(difficulte, newId);
+        log.debug("Generation de l'id: {}", retour);
+        return retour;
     }
 
     @Override

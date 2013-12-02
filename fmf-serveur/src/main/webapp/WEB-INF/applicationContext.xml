@@ -15,6 +15,9 @@
 
 	<bean id="idGeneratorService" class="fr.rayquiz.findmyface.dao.impl.IdGeneratorService">
 	</bean>
+	
+	<bean id="joueurInfosDao" class="fr.rayquiz.findmyface.dao.impl.JoueurInfosDao">
+	</bean>
 
 
 </beans>

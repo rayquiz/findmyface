@@ -1,10 +1,5 @@
 package fr.rayquiz.findmyface.dao.impl;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +19,10 @@ import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.bo.Indice;
 import fr.rayquiz.findmyface.bo.Personne;
 import fr.rayquiz.findmyface.dao.IIdGeneratorService;
+import fr.rayquiz.findmyface.dao.bo.JoueurInfosBo;
 import fr.rayquiz.findmyface.tests.GaeDefaultTestClass;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class PersonneDaoTest extends GaeDefaultTestClass {
 
@@ -206,7 +204,7 @@ public class PersonneDaoTest extends GaeDefaultTestClass {
         // Act
         saveAll(liste);
         for (int i = 0; i < 10; i++) {
-            Personne p = personneDao.getRandomByDifficulte(Difficulte.SIMPLE);
+            Personne p = personneDao.getRandomByDifficulte(Difficulte.SIMPLE, null);
 
             // Assert
             assertThat(p).isSameAs(liste.get((int) idBuilder.getLastId() - 1));
@@ -219,7 +217,7 @@ public class PersonneDaoTest extends GaeDefaultTestClass {
         when(idGenerator.getCount(Difficulte.SIMPLE)).thenReturn((long) 0);
 
         // Act
-        personneDao.getRandomByDifficulte(Difficulte.SIMPLE);
+        personneDao.getRandomByDifficulte(Difficulte.SIMPLE, null);
 
         // Assert
         Assert.fail("Exception attendue");
@@ -233,7 +231,7 @@ public class PersonneDaoTest extends GaeDefaultTestClass {
                 Matchers.anyLong());
 
         // Act
-        personneDao.getRandomByDifficulte(Difficulte.SIMPLE);
+        personneDao.getRandomByDifficulte(Difficulte.SIMPLE, null);
 
         // Assert
         Assert.fail("Exception attendue");
@@ -253,11 +251,45 @@ public class PersonneDaoTest extends GaeDefaultTestClass {
         // Act
         saveAll(liste);
         for (int i = 0; i < 5; i++) {
-            Personne p = personneDao.getRandomByDifficulte(null);
+            Personne p = personneDao.getRandomByDifficulte(null, null);
 
             // Assert
             assertThat(p).isSameAs(liste.get((int) idBuilder.getLastId() - 1));
         }
+    }
+
+    @Test
+    public void should_get_random_personne_not_in_set() {
+        // Arrange
+        int maxEl = 20;
+        MockIdBuilder idBuilder = new MockIdBuilder();
+        List<Personne> liste = generatePersonnes(maxEl);
+
+        JoueurInfosBo joueurInfos = new JoueurInfosBo();
+        Set<Long> idListe = joueurInfos.getIdTrouveListeByDifficulte(Difficulte.SIMPLE);
+
+        when(idGenerator.getCount(Matchers.any(Difficulte.class))).thenReturn((long) maxEl);
+        doAnswer(idBuilder).when(idGenerator)
+                .buildEntityIdFromInfos(Matchers.any(Difficulte.class), Matchers.anyLong());
+
+        // Act
+        saveAll(liste);
+        for (int i = 0; i < maxEl; i++) {
+            Personne p = personneDao.getRandomByDifficulte(Difficulte.SIMPLE, joueurInfos);
+
+            // Assert
+            assertThat(p.getId()).isNotIn(idListe);
+
+            // Arrange (suite)
+            idListe.add(p.getId());
+        }
+
+        // Act (fin)
+        Personne p = personneDao.getRandomByDifficulte(Difficulte.SIMPLE, joueurInfos);
+
+        // Assert
+        assertThat(p.getId()).isIn(idListe);
+
     }
 
     /*

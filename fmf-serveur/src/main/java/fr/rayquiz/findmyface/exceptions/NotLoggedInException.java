@@ -1,6 +1,6 @@
 package fr.rayquiz.findmyface.exceptions;
 
-public class NotLoggedInException extends Exception {
+public class NotLoggedInException extends RuntimeException {
 
     public NotLoggedInException() {
         super();

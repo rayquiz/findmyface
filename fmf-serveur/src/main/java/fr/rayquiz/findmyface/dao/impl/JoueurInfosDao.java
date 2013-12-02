@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.common.annotations.VisibleForTesting;
 import com.googlecode.objectify.ObjectifyService;
 
 import fr.rayquiz.findmyface.dao.IJoueurInfosDao;
@@ -39,10 +40,11 @@ public class JoueurInfosDao implements IJoueurInfosDao {
     }
 
     @Override
-    public void save(JoueurInfosBo joueur) {
+    public void saveAsynchrone(JoueurInfosBo joueur) {
         ofy().save().entity(checkNotNull(joueur));
     }
 
+    @VisibleForTesting
     public void setUserService(UserService userService) {
         this.userService = userService;
     }

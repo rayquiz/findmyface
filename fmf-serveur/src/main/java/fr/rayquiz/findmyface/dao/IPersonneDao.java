@@ -8,6 +8,7 @@ import com.googlecode.objectify.NotFoundException;
 
 import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.bo.Personne;
+import fr.rayquiz.findmyface.dao.bo.JoueurInfosBo;
 
 /**
  * Interface du service de requêtage des objets {@link Personne}
@@ -25,6 +26,7 @@ public interface IPersonneDao {
 
     Set<Personne> getByNomOuPrenomPhonetic(String nomPrenom);
 
-    Personne getRandomByDifficulte(@Nullable Difficulte difficulte) throws NotFoundException;
+    Personne getRandomByDifficulte(@Nullable Difficulte difficulte, @Nullable JoueurInfosBo joueurInfos)
+            throws NotFoundException;
 
 }

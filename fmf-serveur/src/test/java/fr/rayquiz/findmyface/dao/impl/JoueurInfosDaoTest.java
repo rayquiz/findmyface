@@ -6,6 +6,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.googlecode.objectify.ObjectifyService;
 
+import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.dao.bo.JoueurInfosBo;
 import fr.rayquiz.findmyface.exceptions.NotLoggedInException;
 import fr.rayquiz.findmyface.tests.GaeDefaultTestClass;
@@ -47,7 +48,9 @@ public class JoueurInfosDaoTest extends GaeDefaultTestClass {
         // Assert
         assertThat(joueur).isNotNull().isNotEqualTo(mockUser);
         assertThat(joueur.getId()).isEqualTo(mockUser.getUserId());
-        assertThat(joueur.getIdTrouveListe()).isEmpty();
+        assertThat(joueur.getIdTrouveListeByDifficulte(Difficulte.SIMPLE)).isEmpty();
+        assertThat(joueur.getIdTrouveListeByDifficulte(Difficulte.MOYEN)).isEmpty();
+        assertThat(joueur.getIdTrouveListeByDifficulte(Difficulte.DIFFICILE)).isEmpty();
     }
 
     @Test()
@@ -57,7 +60,9 @@ public class JoueurInfosDaoTest extends GaeDefaultTestClass {
         when(userService.getCurrentUser()).thenReturn(mockUser);
         when(userService.isUserLoggedIn()).thenReturn(true);
         JoueurInfosBo arrangeUtilisateur = new JoueurInfosBo(mockUser.getUserId());
-        arrangeUtilisateur.getIdTrouveListe().add("123456");
+        arrangeUtilisateur.getIdTrouveListeByDifficulte(Difficulte.SIMPLE).add((long) 88877744);
+        arrangeUtilisateur.getIdTrouveListeByDifficulte(Difficulte.MOYEN).add((long) 123456);
+        arrangeUtilisateur.getIdTrouveListeByDifficulte(Difficulte.DIFFICILE).add((long) 996633);
 
         // Act
         ObjectifyService.ofy().save().entity(arrangeUtilisateur).now();

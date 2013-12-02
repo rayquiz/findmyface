@@ -1,9 +1,5 @@
 package fr.rayquiz.findmyface.dao.impl;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.googlecode.objectify.ObjectifyService.ofy;
-
 import java.util.Random;
 import java.util.Set;
 
@@ -13,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.googlecode.objectify.Key;
@@ -25,8 +22,11 @@ import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.bo.Personne;
 import fr.rayquiz.findmyface.dao.IIdGeneratorService;
 import fr.rayquiz.findmyface.dao.IPersonneDao;
+import fr.rayquiz.findmyface.dao.bo.JoueurInfosBo;
 import fr.rayquiz.findmyface.utils.ObjectifyUtil;
 import fr.rayquiz.findmyface.utils.Phonetic;
+import static com.google.common.base.Preconditions.*;
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 public class PersonneDao implements IPersonneDao {
     static {
@@ -94,24 +94,51 @@ public class PersonneDao implements IPersonneDao {
     }
 
     @Override
-    public Personne getRandomByDifficulte(@Nullable Difficulte difficulte) throws NotFoundException {
+    public Personne getRandomByDifficulte(@Nullable Difficulte difficulte, @Nullable JoueurInfosBo joueurInfos)
+            throws NotFoundException {
         if (difficulte == null) {
             log.info("Aucune difficulté, récupération d'une difficulté aléatoire");
             int randomDificulte = random.nextInt(Difficulte.values().length);
             difficulte = Difficulte.values()[randomDificulte];
         }
 
+        if (joueurInfos == null) {
+            log.debug("Aucune information de joueur, generation d'un nouveau vide");
+            joueurInfos = new JoueurInfosBo();
+        }
+
+        // Récupération du max
         long maxId = idGeneratorService.getCount(difficulte);
         if (maxId < 1) throw new NotFoundException();
-        long nbTry = 0;
-
         log.debug("Nb max d'id pour {}: {}", difficulte, maxId);
+
+        // Récupération de la liste correspondant à la difficulte
+        Set<Long> idDejaTrouves = joueurInfos.getIdTrouveListeByDifficulte(difficulte);
+
+        // On va simuler un reset si l'utilisateur a déja tout deviné
+        if (idDejaTrouves.size() >= maxId) {
+            log.debug("Tous les id ont été trouvés, simulation d'une liste vide pour l'utilisateur {}",
+                    joueurInfos.getId());
+            idDejaTrouves = ImmutableSet.of();
+        }
+
+        long nbTry = 0;
         LoadType<Personne> loader = ofy().load().type(Personne.class);
         Personne personne = null;
 
         do {
+
             int currentId = random.nextInt((int) maxId) + 1;
             long personneId = idGeneratorService.buildEntityIdFromInfos(difficulte, currentId);
+
+            while (idDejaTrouves.contains(personneId)) {
+                currentId++;
+                if (currentId > maxId) {
+                    // On a atteint le max, on redémarre au début
+                    currentId = 1;
+                }
+                personneId = idGeneratorService.buildEntityIdFromInfos(difficulte, currentId);
+            }
 
             personne = loader.id(personneId).now();
             if (personne == null) {

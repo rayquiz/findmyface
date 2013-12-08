@@ -1,6 +1,6 @@
 package fr.rayquiz.findmyface.web;
 
-import java.util.Set;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.collect.Collections2;
 import com.googlecode.objectify.NotFoundException;
 
 import fr.rayquiz.findmyface.bo.Difficulte;
 import fr.rayquiz.findmyface.bo.Personne;
+import fr.rayquiz.findmyface.bo.PersonneLight;
+import fr.rayquiz.findmyface.bo.utils.PersonneToPersonneLightTransformer;
 import fr.rayquiz.findmyface.dao.IJoueurInfosDao;
 import fr.rayquiz.findmyface.dao.IPersonneDao;
 import fr.rayquiz.findmyface.dao.bo.JoueurInfosBo;
@@ -42,10 +45,21 @@ public class PersonneControlleur {
 
     @RequestMapping(
             value = "/recherche/{texte}",
+            params = "light=true",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public Set<Personne> getByNomOuPrenom(@PathVariable final String texte) {
+    public Collection<PersonneLight> getByNomOuPrenomLight(@PathVariable final String texte) {
+        Collection<Personne> set = getByNomOuPrenom(texte);
+        return Collections2.transform(set, new PersonneToPersonneLightTransformer());
+    }
+
+    @RequestMapping(
+            value = "/recherche/{texte}",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Collection<Personne> getByNomOuPrenom(@PathVariable final String texte) {
         return personneDao.getByNomOuPrenomPhonetic(texte);
     }
 
